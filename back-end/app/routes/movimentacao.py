@@ -3,6 +3,7 @@ from datetime import date, datetime
 from fastapi import APIRouter, Depends, HTTPException, logger, status
 from uuid import UUID, uuid4
 from sqlalchemy.orm import Session
+from app.models.categoria import Categoria
 from app.models.local import Local
 from app.models.lote import Lote
 from app.models.movimentacao import Movimentacao
@@ -207,3 +208,54 @@ async def create_output(
             for l in lotes_utilizados
         ],
     }
+
+@rota_movimentacao.get("/movimentacoes")
+async def list_movements(
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user)
+):
+    """Retorna lista de movimentações para o dashboard"""
+    movimentacoes = (
+        db.query(
+            Movimentacao.id_movimentacao,
+            Movimentacao.tipo_movimentacao,
+            Movimentacao.data_movimentacao,
+            Produto.nome_produto.label("item"),
+            Categoria.nome_categoria.label("categoria"),
+            MovimentacaoLote.quantidade,
+            Produto.unidade_medida.label("unidade"),
+            Usuario.nome.label("responsavel"),
+            Local.nome_local.label("local"),
+            Local.nome_local.label("origem_destino"),
+        )
+        .join(Movimentacao, MovimentacaoLote.id_movimentacao == Movimentacao.id_movimentacao)
+        .join(Lote, MovimentacaoLote.id_lote == Lote.id_lote)
+        .join(Produto, Lote.id_produto == Produto.id_produto)
+        .join(Categoria, Produto.id_categoria == Categoria.id_categoria)
+        .join(Usuario, Movimentacao.id_usuario == Usuario.id_usuario)
+        .join(
+            Local,
+            (Local.id_local == Movimentacao.id_origem) | (Local.id_local == Movimentacao.id_destino),
+            isouter=True
+        )
+        .order_by(Movimentacao.data_movimentacao.desc())
+        .all()
+    )
+
+    result = [
+        {
+            "codigo": f"MOV-{str(mov[0])[:8].upper()}",
+            "item": mov[3],
+            "categoria": mov[4],
+            "tipo": mov[1],
+            "quantidade": mov[5],
+            "unidade": mov[6],
+            "responsavel": mov[7],
+            "local": mov[8],
+            "data": mov[2].isoformat(),
+            "origem_destino": mov[9],
+        }
+        for mov in movimentacoes
+    ]
+
+    return result

@@ -16,6 +16,7 @@ class Usuario(Base):
     data_criacao = Column(DateTime, default=datetime.utcnow)
 
     movimentacoes = relationship("Movimentacao", back_populates="usuario")
+    relatorios = relationship("Relatorio", back_populates="usuario")
 
     def id(self):
         """Alias para compatibilidade com SQLAlchemy"""

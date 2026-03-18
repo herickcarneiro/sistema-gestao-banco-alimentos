@@ -64,3 +64,43 @@ def update_me(
     db.refresh(current_user)
 
     return current_user
+
+@rota_usuario.get("/operadores")
+async def list_operadores(
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user)
+):
+    """Retorna lista de operadores para o dashboard"""
+    usuarios = db.query(Usuario).filter(Usuario.ativo == True).all()
+
+    result = []
+    for usuario in usuarios:
+        # Contar movimentações do usuário
+        from app.models.movimentacao import Movimentacao
+        from datetime import datetime, date
+        
+        total_movs = db.query(Movimentacao).filter(
+            Movimentacao.id_usuario == usuario.id_usuario
+        ).count()
+        
+        today = date.today()
+        today_movs = db.query(Movimentacao).filter(
+            Movimentacao.id_usuario == usuario.id_usuario,
+            Movimentacao.data_movimentacao >= datetime.combine(today, datetime.min.time())
+        ).count()
+
+        result.append({
+            "id": str(usuario.id_usuario),
+            "nome": usuario.nome,
+            "email": usuario.email,
+            "funcao": "operador",  # TODO: adicionar campo funcao no modelo Usuario
+            "turno": "manha",  # TODO: adicionar campo turno no modelo Usuario
+            "status": "ativo" if usuario.ativo else "inativo",
+            "data_admissao": usuario.data_criacao.isoformat() if usuario.data_criacao else None,
+            "movimentacoes_hoje": today_movs,
+            "movimentacoes_total": total_movs,
+            "acuracia_nota": 9.0,  # TODO: adicionar campo acuracia no modelo Usuario
+            "ultima_atividade": datetime.utcnow().isoformat(),  # TODO: adicionar campo ultima_atividade
+        })
+
+    return result
