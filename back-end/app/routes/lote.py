@@ -46,6 +46,7 @@ async def read_batches(
             "categoria": lote.produto.categoria.nome_categoria,
             "quantidade_disponivel": lote.quantidade_disponivel,
             "data_validade": lote.data_validade,
+            "data_entrada": lote.data_entrada,
             "dias_para_vencer": dias_para_vencer,
             "esta_valido": lote.esta_valido
         })
@@ -83,6 +84,7 @@ async def read_batch(
         "categoria": lote.produto.categoria.nome_categoria,
         "quantidade_disponivel": lote.quantidade_disponivel,
         "data_validade": lote.data_validade,
+        "data_entrada": lote.data_entrada,
         "dias_para_vencer": dias_para_vencer,
         "esta_valido": lote.esta_valido
     }
@@ -131,6 +133,7 @@ async def create_batch(
         id_produto=lote_in.id_produto,
         quantidade_disponivel=lote_in.quantidade_disponivel,
         data_validade=lote_in.data_validade,
+        data_entrada=date.today(),
         esta_valido=esta_valido
     )
 

@@ -22,9 +22,11 @@ app.include_router(rota_movimentacao)
 
 @app.on_event("startup")
 def startup_event():
-    from database.database import SessionLocal
+    from database.database import SessionLocal, ensure_schema_compatibility
     from app.models.categoria import Categoria
-    
+
+    ensure_schema_compatibility()
+
     db = SessionLocal()
     categorias_padrao = [
         "Grãos e Cereais",

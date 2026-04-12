@@ -66,6 +66,7 @@ async def create_input(
                 id_produto=item.id_produto,
                 quantidade_disponivel=item.quantidade,
                 data_validade=item.data_validade,
+                data_entrada=date.today(),
                 esta_valido=True
             )
             db.add(lote)

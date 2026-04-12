@@ -9,13 +9,11 @@ import { api } from "@/lib/api";
 function formatDocumento(value: string): string {
   const digits = value.replace(/\D/g, "");
   if (digits.length <= 11) {
-    // CPF: 000.000.000-00
     return digits
       .replace(/(\d{3})(\d)/, "$1.$2")
       .replace(/(\d{3})(\d)/, "$1.$2")
       .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
   }
-  // CNPJ: 00.000.000/0000-00
   return digits
     .replace(/(\d{2})(\d)/, "$1.$2")
     .replace(/(\d{3})(\d)/, "$1.$2")
@@ -85,7 +83,6 @@ export default function Locais() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
-  // Form state
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formNome, setFormNome] = useState("");
@@ -129,15 +126,9 @@ export default function Locais() {
     return matchSearch && matchTipo;
   });
 
-  const chipClass = (active: boolean) =>
-    `px-3 py-1.5 text-xs font-medium rounded-full transition-colors whitespace-nowrap ${
-      active ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground"
-    }`;
-
   const openNew = () => {
     setEditingId(null);
     setFormNome("");
-    setFormTipo("doador");
     setFormDoc("");
     setShowForm(true);
   };
@@ -220,7 +211,7 @@ export default function Locais() {
     <div className="p-4 md:p-8 max-w-2xl mx-auto">
       <PageHeader
         title="Locais"
-        subtitle="Doadores e beneficiários"
+        subtitle="Cadastro de locais e documentos"
         action={
           <button
             onClick={openNew}
@@ -236,17 +227,6 @@ export default function Locais() {
         <CommandSearch value={search} onChange={setSearch} placeholder="Buscar local..." />
       </div>
 
-      <div className="flex gap-2 mb-5">
-        {([["todos", "Todos"], ["doador", "Doadores"], ["beneficiario", "Beneficiários"]] as const).map(
-          ([key, label]) => (
-            <button key={key} className={chipClass(tipoFilter === key)} onClick={() => setTipoFilter(key)}>
-              {label}
-            </button>
-          )
-        )}
-      </div>
-
-      {/* Form side panel */}
       <AnimatePresence>
         {showForm && (
           <motion.div
@@ -271,18 +251,6 @@ export default function Locais() {
                 placeholder="Nome do local"
                 className="w-full h-10 px-3 rounded-md bg-surface text-sm text-foreground outline-none ring-1 ring-transparent focus:ring-primary/30"
               />
-
-              <div className="flex gap-2">
-                {([["doador", "Doador"], ["beneficiario", "Beneficiário"]] as const).map(([key, label]) => (
-                  <button
-                    key={key}
-                    onClick={() => setFormTipo(key)}
-                    className={chipClass(formTipo === key)}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
 
               <div>
                 <label className="text-[10px] text-muted-foreground uppercase tracking-wider block mb-1">
@@ -320,7 +288,8 @@ export default function Locais() {
         </div>
       )}
 
-      <div className="space-y-1">
+      {!isLoading && (
+        <div className="space-y-1">
         {filtered.map((local) => (
           <div
             key={local.id}
@@ -341,28 +310,15 @@ export default function Locais() {
                 {local.tipo === "doador" ? "Doador" : "Beneficiário"} · {local.documento}
               </span>
             </div>
-            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-              <button
-                onClick={() => openEdit(local)}
-                className="h-7 w-7 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
-              >
-                <Edit2 size={13} />
-              </button>
-              <button
-                onClick={() => handleDelete(local.id)}
-                className="h-7 w-7 rounded-md flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
-              >
-                <Trash2 size={13} />
-              </button>
-            </div>
           </div>
         ))}
         {filtered.length === 0 && (
           <div className="py-12 text-center">
             <p className="text-sm text-muted-foreground">Nenhum local encontrado.</p>
-          </div>
-        )}
-      </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -19,11 +19,11 @@ async def read_products(db: Session = Depends(get_db), current_user: Usuario = D
 
 @rota_local.get("/places/{local_id}", response_model=LocalPublic)
 async def get_category(
-    local_id: UUID,
+    place_id: UUID,
     db: Session = Depends(get_db),
     current_user: Usuario = Depends(get_current_user)
 ):
-    local = db.query(Local).filter(Local.id_local == local_id).first()
+    local = db.query(Local).filter(Local.id_local == place_id).first()
     
     if not local:
         raise HTTPException(
@@ -103,12 +103,12 @@ async def create_place(
 
 @rota_local.put("/places/{local_id}", response_model=LocalPublic)
 async def update_local(
-    local_id: UUID,
+    place_id: UUID,
     local_in: LocalUpdate,
     db: Session = Depends(get_db),
     current_user: Usuario = Depends(get_current_user)
 ):
-    local = db.query(Local).filter(Local.id_local == local_id).first()
+    local = db.query(Local).filter(Local.id_local == place_id).first()
 
     if not local:
         raise HTTPException(
@@ -123,7 +123,7 @@ async def update_local(
 
         existe = db.query(Local).filter(
             func.lower(Local.nome_local) == func.lower(nome_normalizado),
-            Local.id_local != local_id
+            Local.id_local != place_id
         ).first()
 
         if existe:
@@ -171,11 +171,11 @@ async def update_local(
 
 @rota_local.delete("/places/{local_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_place(
-    local_id: UUID,
+    place_id: UUID,
     db: Session = Depends(get_db),
     current_user: Usuario = Depends(get_current_user)):
 
-    local = db.query(Local).filter(Local.id_local == local_id).first()
+    local = db.query(Local).filter(Local.id_local == place_id).first()
 
     if not local:
         raise HTTPException(

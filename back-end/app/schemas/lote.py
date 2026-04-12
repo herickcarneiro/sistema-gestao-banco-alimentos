@@ -9,6 +9,7 @@ class LoteBase(BaseModel):
 
 class LotePost(LoteBase):
     id_lote: UUID
+    data_entrada: date
 
 class LoteCreate(LoteBase):
     pass
@@ -19,6 +20,7 @@ class LoteUpdate(BaseModel):
 
 class LotePublic(LoteBase):
     id_lote: UUID
+    data_entrada: date
     produto: str
     categoria: str
     dias_para_vencer: int

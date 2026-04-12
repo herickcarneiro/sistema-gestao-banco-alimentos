@@ -1,15 +1,15 @@
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import type { Lote } from "@/data/mock";
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { BarChart, Bar, XAxis, ResponsiveContainer } from "recharts";
+import { BarChart, Bar, XAxis } from "recharts";
+import type { BatchView } from "@/lib/stock";
 
 interface LoteSparklineProps {
-  data: Lote[];
+  data: BatchView[];
 }
 
 export default function LoteSparkline({ data }: LoteSparklineProps) {

@@ -1,4 +1,6 @@
 import uuid
+from datetime import date
+
 from sqlalchemy import UUID, Boolean, CheckConstraint, Column, Integer, ForeignKey, Date, UniqueConstraint
 from sqlalchemy.orm import relationship
 from database.database import Base
@@ -15,6 +17,7 @@ class Lote(Base):
     id_produto = Column(UUID(as_uuid=True), ForeignKey("produto.id_produto"))
     quantidade_disponivel = Column(Integer, nullable=False)
     data_validade = Column(Date, nullable=False)
+    data_entrada = Column(Date, nullable=False, default=date.today)
     esta_valido = Column(Boolean, nullable=False)
 
     produto = relationship("Produto", back_populates="lotes")

@@ -113,6 +113,26 @@ frontend/README.md
 
 ---
 
+# 🖼️ Screenshots da Aplicação
+
+## Histórico e análises
+
+![Histórico e análises da aplicação](docs/screenshots/01.png)
+
+## Locais
+
+![Cadastro de locais](docs/screenshots/02.png)
+
+## Movimentações
+
+![Tela de movimentações](docs/screenshots/03.png)
+
+## Estoque
+
+![Tela de estoque](docs/screenshots/04.png)
+
+---
+
 # 📌 Objetivo do Projeto
 
 Este projeto foi desenvolvido com fins **acadêmicos e de aprendizado**, com foco em:

@@ -1,15 +1,13 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown } from "lucide-react";
-import { differenceInDays, format } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { differenceInDays } from "date-fns";
 import { useState } from "react";
-import type { ProdutoEstoque } from "@/data/mock";
-import { getLoteHistorico } from "@/data/mock";
 import ExpiryBadge from "@/components/shared/ExpiryBadge";
 import LoteSparkline from "@/components/stock/LoteSparkline";
+import { formatStockTotal, type StockViewItem } from "@/lib/stock";
 
 interface DataStripProps {
-  item: ProdutoEstoque;
+  item: StockViewItem;
 }
 
 export default function DataStrip({ item }: DataStripProps) {
@@ -17,8 +15,6 @@ export default function DataStrip({ item }: DataStripProps) {
   const hasNearExpiry = item.lotes.some(
     (l) => l.status_validade === "proximo_vencimento"
   );
-
-  const historico = getLoteHistorico(item.produto.id);
 
   return (
     <motion.div layout className="border-b border-border">
@@ -28,10 +24,10 @@ export default function DataStrip({ item }: DataStripProps) {
       >
         <div className="flex flex-col gap-0.5 min-w-0">
           <span className="text-[14px] font-medium tracking-tight text-foreground truncate">
-            {item.produto.nome}
+            {item.produto}
           </span>
           <span className="text-[11px] text-muted-foreground uppercase tracking-widest">
-            {item.produto.categoria.nome}
+            {item.categoria}
           </span>
         </div>
         <div className="flex items-center gap-3 shrink-0 ml-4">
@@ -40,10 +36,10 @@ export default function DataStrip({ item }: DataStripProps) {
           )}
           <div className="text-right">
             <span className="font-mono text-lg tabular-nums text-foreground block leading-tight">
-              {item.volume_total}
+              {formatStockTotal(item.quantidade_total, item.unidade_medida)}
             </span>
             <span className="text-[10px] text-muted-foreground">
-              {item.total_disponivel} {item.total_disponivel === 1 ? "unid" : "unids"}
+              {item.quantidade_total} {item.unidade_medida}
             </span>
           </div>
           <motion.div
@@ -66,41 +62,47 @@ export default function DataStrip({ item }: DataStripProps) {
           >
             <div className="px-4 pb-4 space-y-3">
               {/* Lots */}
-              <div className="space-y-1.5">
-                {item.lotes.map((lote) => {
-                  const daysLeft = differenceInDays(lote.data_validade, new Date());
-                  return (
-                    <div
-                      key={lote.id}
-                      className={`flex items-center justify-between py-2 px-3 rounded-md text-sm ${
-                        lote.status_validade === "proximo_vencimento"
-                          ? "bg-expiry-near border border-expiry-near-border"
-                          : "bg-secondary"
-                      }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <ExpiryBadge date={lote.data_validade} />
-                        <span className="text-xs text-muted-foreground">
-                          {daysLeft >= 0
-                            ? `Vence em ${daysLeft} ${daysLeft === 1 ? "dia" : "dias"}`
-                            : `Vencido há ${Math.abs(daysLeft)} dias`}
+              {item.lotes.length === 0 ? (
+                <div className="py-4 text-sm text-muted-foreground text-center rounded-md bg-secondary">
+                  Nenhum lote disponível para este produto.
+                </div>
+              ) : (
+                <div className="space-y-1.5">
+                  {item.lotes.map((lote) => {
+                    const daysLeft = differenceInDays(lote.data_validade, new Date());
+                    return (
+                      <div
+                        key={lote.id_lote}
+                        className={`flex items-center justify-between py-2 px-3 rounded-md text-sm ${
+                          lote.status_validade === "proximo_vencimento"
+                            ? "bg-expiry-near border border-expiry-near-border"
+                            : "bg-secondary"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <ExpiryBadge date={lote.data_validade} />
+                          <span className="text-xs text-muted-foreground">
+                            {daysLeft >= 0
+                              ? `Vence em ${daysLeft} ${daysLeft === 1 ? "dia" : "dias"}`
+                              : `Vencido há ${Math.abs(daysLeft)} dias`}
+                          </span>
+                        </div>
+                        <span className="font-mono text-sm tabular-nums text-foreground">
+                          {lote.quantidade_disponivel}
                         </span>
                       </div>
-                      <span className="font-mono text-sm tabular-nums text-foreground">
-                        {lote.quantidade_disponivel}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
+                    );
+                  })}
+                </div>
+              )}
 
               {/* Sparkline micro-chart */}
-              {historico.length > 1 && (
+              {item.historico.length > 1 && (
                 <div className="pt-2 border-t border-border">
                   <span className="text-[10px] uppercase tracking-widest text-muted-foreground mb-2 block">
                     Entradas de lotes
                   </span>
-                  <LoteSparkline data={historico} />
+                  <LoteSparkline data={item.historico} />
                 </div>
               )}
             </div>
